@@ -35,15 +35,15 @@ def CreateGlobalAxes(scale=__GlobalScale__, x_scale=__GlobalXScale__, y_scale=__
 	
 	#Default x_offset from -6*scale to 6*scale
 	if x_offset == None:
-		x_offset = [-6*t_x_scale, 6*t_x_scale]
+		_x_range = [-6*t_x_scale, 6*t_x_scale, x_interval]
+	else:	#Calculate _x_range
+		_x_range = [x_offset[0]*t_x_scale, x_offset[1]*t_x_scale, x_interval]
 		
 	#Default y_offset from -3*scale to 3*scale
 	if y_offset == None:
-		y_offset = [-3*t_y_scale, 3*t_y_scale]
-	
-	#Calculate final x and y range
-	_x_range = [x_offset[0], x_offset[1], x_interval]
-	_y_range = [y_offset[0], y_offset[1], y_interval]
+		_y_range = [-3*t_y_scale, 3*t_y_scale, y_interval]
+	else:	#Calculate _y_range
+		_y_range = [y_offset[0]*t_y_scale, y_offset[1]*t_y_scale, y_interval]
 	
 	return Axes(
 					x_range=_x_range,
