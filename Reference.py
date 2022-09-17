@@ -10,6 +10,13 @@ create_label(mobject, label_text, color, direction=None, buff=0, font_size=16) -
 Main user classes:
 
 class MainConstruct(Scene) -> Main Scene constructor with construct(self)
+
+
+Main user variables:
+
+__GlobalScale__ -> Global scalar for determining size
+__GlobalXScale__ -> Global x scalar for determining x axis sizes
+__GlobalYScale__ -> Global y scalar for determining y axis sizes
 """
 
 import math
