@@ -5,6 +5,7 @@ CreateGlobalAxes(scale=__GlobalScale__, x_scale=__GlobalXScale__, y_scale=__Glob
 create_vector(x, y) -> Creates 2d Manim vector based off of x and y
 create_arrow(end, colour, start=ORIGIN, buff=0) -> Creates Arrow starting in ORIGIN and ending in vector or mobject end
 create_label(mobject, label_text, color, direction=None, buff=0, font_size=16) -> Creates Text next to mobject with specified direction and buff and colour
+create_function_x_range(start=-6, end=6) -> Creates an np.array for defining x ranges for things like plots
 
 
 Main user classes:
@@ -17,6 +18,8 @@ Main user variables:
 __GlobalScale__ -> Global scalar for determining size
 __GlobalXScale__ -> Global x scalar for determining x axis sizes
 __GlobalYScale__ -> Global y scalar for determining y axis sizes
+__GlobalXScalar__ -> Global x scalar for directly determining x axis sizes
+__GlobalYScalar__ -> Global x scalar for directly determining y axis sizes
 """
 
 import math
@@ -27,6 +30,9 @@ from manim import *
 __GlobalScale__ = 1
 __GlobalXScale__ = 1
 __GlobalYScale__ = 1
+
+__GlobalXScalar__ = __GlobalScale__*__GlobalXScale__
+__GlobalYScalar__ = __GlobalScale__*__GlobalYScale__
 
 def CreateGlobalAxes(scale=__GlobalScale__, x_scale=__GlobalXScale__, y_scale=__GlobalYScale__, x_offset=None, y_offset=None, x_interval=1, y_interval=1, axis_color=GREEN):
 	#Temporary x scalar and y scalar
@@ -75,6 +81,15 @@ def create_label(mobject, label_text, colour, direction=None, buff=0, font_size=
 	#Create Text with reference to mobject and with the given text and colour
 	return Text(label_text, font_size=font_size, color=colour).next_to(mobject, direction, buff)
 
+def create_function_x_range(start=-6, end=6):
+	return np.array([start*__GlobalXScalar__, end*__GlobalXScalar__, 0])
+
+def sigmoid_function(x):
+	return (1/(1+math.exp(-x)))/__GlobalYScalar__
+
+def sinusoidal_function(x):
+	return (math.sin(x)/x)/__GlobalYScalar__
+
 class MainConstruct(Scene):
 	def construct(self):
 		
@@ -88,6 +103,7 @@ class MainConstruct(Scene):
 		
 		coords = create_vector(1.75, 2)
 		circle_offset = create_vector(1, 1)
+		function_label_direction = create_vector(-1,0.5)
 		
 		#Create circles
 		circle			= Circle(radius=1, color=RED)
@@ -119,13 +135,24 @@ class MainConstruct(Scene):
 		shifted_arrow	= create_arrow(dot, YELLOW).shift(coords)
 		end_arrow		= create_arrow(dot, PINK).shift(coords)
 		
-		#Create VGroups
-		axes_group = VGroup(axes, axes_labels)
+		#Create function plots
+		sigmoid_example		= axes.plot(sigmoid_function)
+		sinusoidal_example	= axes.plot(sinusoidal_function)
 		
-		base_group	= VGroup(circle, circle_label)
-		one_group	= VGroup(big_circle, big_circle_label, dot, arrow)
-		two_group	= VGroup(shifted_circle, shifted_circle_label, shifted_dot, shifted_arrow)
-		end_group	= VGroup(end_circle, end_label, end_dot, end_arrow)
+		#Create function labels
+		sigmoid_label		= create_label(create_vector(create_function_x_range()[1], sigmoid_function(create_function_x_range()[1])), "Sigmoid function", RED, direction=function_label_direction)
+		sinusoidal_label	= create_label(create_vector(create_function_x_range()[1], sinusoidal_function(create_function_x_range()[1])), "Sinusoidal function", BLUE, direction=function_label_direction)
+		
+		#Create VGroups
+		axes_group			= VGroup(axes, axes_labels)
+		
+		base_group			= VGroup(circle, circle_label)
+		one_group			= VGroup(big_circle, big_circle_label, dot, arrow)
+		two_group			= VGroup(shifted_circle, shifted_circle_label, shifted_dot, shifted_arrow)
+		end_group			= VGroup(end_circle, end_label, end_dot, end_arrow)
+		
+		sigmoid_group 		= VGroup(sigmoid_example, sigmoid_label)
+		sinusoidal_group	= VGroup(sinusoidal_example, sinusoidal_label)
 		
 		#Create/play scenes
 		self.add(axes_group)
@@ -152,3 +179,13 @@ class MainConstruct(Scene):
 		self.wait()
 		
 		self.next_section()
+		
+		self.play(Transform(base_group, sigmoid_group))
+		
+		self.wait()
+		
+		self.next_section()
+		
+		self.play(Transform(base_group, sinusoidal_group))
+		
+		self.wait()
